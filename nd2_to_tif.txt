@@ -1,0 +1,89 @@
+macro "nd2_to_tif [f3]" {
+
+args = getArgument();
+if (args == ""){
+	args = getDirectory("choose a Directory");
+}
+loadDir = args;
+checkForDone = 0;
+if (File.exists(loadDir + "imagej_SMA\\")){
+	checkForDone = 1;
+}
+saveDirSMA = loadDir + "imagej_SMA\\";
+saveDirFib = loadDir + "imagej_Fib\\";
+saveDirBright = loadDir + "imagej_Bright\\";
+
+File.makeDirectory(saveDirSMA);
+File.makeDirectory(saveDirFib);
+File.makeDirectory(saveDirBright);
+
+fileList = getFileList(loadDir);
+
+for (i = 0; i < lengthOf(fileList); i++){
+	if (File.isDirectory(loadDir + fileList[i]) && fileList[i] != "imagej_SMA/" && fileList[i] != "imagej_Fib/" && fileList[i] != "imagej_Bright/" && fileList[i] != "ignore/"){
+		runMacro("nd2_to_tif", loadDir + fileList[i]);
+	} else if (endsWith(fileList[i],".nd2") && checkForDone == 0) {
+		name = fileList[i];
+		file = loadDir + name;
+		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Composite rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
+		
+		rename("temp");
+
+		run("Split Channels");
+
+		run("Merge Channels...", "c1=[C4-temp] c3=[C2-temp] create keep");
+		selectWindow("Composite");
+		run("RGB Color");
+		close("Composite");
+		saveAs("tiff", saveDirSMA + name);
+		close("Composite (RGB)");
+		
+		run("Merge Channels...", "c2=[C3-temp] c3=[C2-temp] create keep");
+		selectWindow("Composite");
+		run("RGB Color");
+		close("Composite");
+		saveAs("tiff", saveDirFib + name);
+		close("Composite (RGB)");
+		
+
+		run("Merge Channels...", "c1=[C4-temp] c2=[C3-temp] c3=[C2-temp] create keep");
+		selectWindow("Composite");
+		run("RGB Color");
+		close("Composite");
+		saveAs("tiff", saveDirBright + name);
+		close("Composite (RGB)");
+
+
+		selectWindow("C1-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDirBright + name + "_brightfield");
+		close("C1-temp");
+
+		selectWindow("C2-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDirFib + name + "_Dapi");
+		saveAs("tiff", saveDirSMA + name + "_Dapi");
+		close("C2-temp");
+
+		selectWindow("C4-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDirSMA + name + "_SMA");
+		close("C4-temp");
+
+		selectWindow("C3-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDirFib + name + "_Fibro");
+		close("C3-temp");
+		
+		run("Close");
+		run("Close");
+		run("Close");
+		run("Close");
+		run("Close");
+		run("Close");
+		run("Close");
+
+
+	}
+}
+}

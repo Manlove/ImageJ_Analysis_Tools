@@ -1,0 +1,17 @@
+// SMA_analysis
+// Logan Manlove
+// 1-2-2018
+// 
+// Takes single channel image, allows user to set threshold, displays analysis
+
+
+
+macro "SMA_analysis" {
+setBackgroundColor(0, 0, 0);
+run("Clear Outside");
+setAutoThreshold("Default dark");
+//run("Threshold...");
+selectWindow("Threshold");
+run("Close");
+run("Analyze Particles...", "exclude clear summarize");
+}

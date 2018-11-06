@@ -1,0 +1,49 @@
+// Red Green Threshold ND2
+// Logan Manlove
+// 12-18-2017
+//
+// Update to Red Green Threshold that allows a user to select a directory containing .ND2 files saved from nikon elements. 
+// Runs red/green colocalization analysis on all images in the folder.
+//
+// ******** Requires bioformats_package ********
+
+
+
+macro "Red Green Threshold nd2 [f2]" {
+
+
+// Get user input for folder where tiffs are
+// stored and creates a path to store saved files.
+
+loadDir = getDirectory("Choose a Directory");
+
+// retrieves a list of the files in the folder.
+
+fileList = getFileList(loadDir);
+
+
+j = 1;
+for (i = 0; i < lengthOf(fileList); i++) {
+	if (endsWith(fileList[i],".nd2")){		
+		name = fileList[i];
+		file = loadDir + name;
+		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Colorized rois_import=[ROI manager] split_channels view=Hyperstack stack_order=XYCZT");
+		close(name + " - C=1");
+		run("Merge Channels...", "c1=[" + name + " - C=0] c2=[" + name + " - C=2] create");
+		selectWindow("Composite");
+		run("RGB Color");
+		close("Composite");
+		run("Color Threshold...");
+		waitForUser("Adjust Threshold, then press 'ok'");
+		selectWindow("Threshold Color");
+		run("Close");
+		setBackgroundColor(255, 255, 255);
+		run("Clear Outside");
+		run("Make Binary");
+		while (getBoolean(" Dilate? ")){
+			run("Dilate");
+		}
+		run("Analyze Particles...", "size=25.00-Infinity show=Masks exclude clear summarize");
+	}
+}
+}

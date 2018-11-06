@@ -1,0 +1,29 @@
+// Red Green Threshold
+// Logan Manlove
+// 12-14-2017
+//
+// Macro to be run on a multichannel image, retains the red and green channels and allows the user to measure colocalization
+
+
+macro "Red Green Threshold [f2]" {
+	name = getTitle();
+	run("Split Channels");
+	close()
+	run("Merge Channels...", "c1=[C1-" + name + "] c2=[C2-" + name + "] create");
+	selectWindow(name);
+	run("RGB Color");
+	selectWindow(name);
+	close();
+	run("Color Threshold...");
+	waitForUser("Adjust Threshold, then press 'ok'");
+	selectWindow("Threshold Color")
+	run("Close");
+	setBackgroundColor(255, 255, 255);
+	run("Clear Outside");
+	run("Make Binary");
+	while (getBoolean(" Dilate? ")){
+		run("Dilate");
+	}
+	run("Analyze Particles...", "size=25.00-Infinity show=Masks exclude clear summarize");
+	
+}

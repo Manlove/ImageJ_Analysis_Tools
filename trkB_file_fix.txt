@@ -1,0 +1,62 @@
+// trkB_file_fix
+// Logan Manlove
+// 12-22-2017
+//
+// script was used to take pictures saved in tiff form with three channels (red, green, blue) and resave them
+// as tiff files with only red and blue channels.
+//
+// took a folder as an input and then opened and resaved all images in all subfolders of the directory.
+
+
+macro "trkB_file_fix [f4]" {
+
+args = getArgument();
+if (args == ""){
+	args = getDirectory("Choose a Directory");
+
+}
+loadDir = args;
+checkForDone = 0;
+if (File.exists(loadDir + "imagej\\")){
+	checkForDone = 1;
+}
+saveDir = loadDir + "imagej\\";
+File.makeDirectory(saveDir);
+
+// Get user input for folder where tiffs are
+// stored and creates a path to store saved files.
+
+
+
+// retrieves a list of the files in the folder.
+
+fileList = getFileList(loadDir);
+
+// Makes a folder at the save file path
+
+for (i = 0; i < lengthOf(fileList); i++){
+	if (File.isDirectory(loadDir + fileList[i]) && fileList[i] != "imagej/"){
+		 runMacro("trkB_file_fix", loadDir + fileList[i]);
+	} else if (endsWith(fileList[i],".tif") && checkForDone == 0) {
+		name = fileList[i];
+		file = loadDir + name;
+		open(file);
+
+		rename("temp");
+		if (bitDepth() != 24){
+			run("RGB Color");
+			close("temp");
+			rename("temp");
+		}
+		run("Split Channels");
+		close("temp (green)");
+		run("Merge Channels...", "c1=[temp (red)] c3=[temp (blue)] create");
+		run("RGB Color");
+		saveAs("tiff", saveDir + name);
+		run("Close");
+		run("Close");
+	}
+
+	
+}
+}

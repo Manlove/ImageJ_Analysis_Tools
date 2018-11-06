@@ -1,0 +1,61 @@
+macro "hyal_save" {
+
+args = getArgument();
+if (args == ""){
+	args = getDirectory("Choose a Directory");
+
+}
+loadDir = args;
+checkForDone = 0;
+if (File.exists(loadDir + "imagej\\")){
+	checkForDone = 1;
+}
+saveDir = loadDir + "imagej\\";
+File.makeDirectory(saveDir);
+
+// Get user input for folder where tiffs are
+// stored and creates a path to store saved files.
+
+
+
+// retrieves a list of the files in the folder.
+
+fileList = getFileList(loadDir);
+
+// Makes a folder at the save file path
+
+for (i = 0; i < lengthOf(fileList); i++){
+	if (File.isDirectory(loadDir + fileList[i]) && fileList[i] != "imagej/"){
+		runMacro("hyal_save", loadDir + fileList[i]);
+	} else if (endsWith(fileList[i],".nd2") && checkForDone == 0) {
+		name = fileList[i];
+		file = loadDir + name;
+		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Colorized rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
+		saveName = getTitle;
+		rename("temp");
+		run("Split Channels");
+		selectWindow("C4-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDir + name + " SMA");
+	
+		selectWindow("C3-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDir + name + " Green");
+
+
+		selectWindow("C2-temp");
+		run("RGB Color");
+		saveAs("tiff", saveDir + name + " Dapi");
+
+		run("Merge Channels...", "c1=[" + name + " SMA.tif] c2=[" + name + " Green.tif] c3=[" + name + " Dapi.tif] create");
+		selectWindow("C1-temp");
+		run("Close");
+		selectWindow("Composite");
+		run("RGB Color");
+		saveAs("tiff", saveDir + name);
+		run("Close");
+	}
+
+	
+}
+}

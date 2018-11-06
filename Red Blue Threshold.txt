@@ -1,0 +1,29 @@
+// Red Blue Threshold
+// Logan Manlove
+// 6-26-2017
+//
+// Macro to be run on a multichannel image, retains the red and blue channels and allows the user to measure colocalization
+
+macro "Red Blue Threshold [f3]" {
+	name = getTitle();
+	run("Split Channels");
+	run("Merge Channels...", "c1=[" + name + " (red)] c2=[" + name + " (Blue)] create");
+	selectWindow(name + " (Green)");
+	close();
+	selectWindow("Composite");
+	run("RGB Color");
+	selectWindow("Composite");
+	close();
+	run("Color Threshold...");
+	waitForUser("Adjust Threshold, then press 'ok'");
+	selectWindow("Threshold Color")
+	run("Close");
+	setBackgroundColor(255, 255, 255);
+	run("Clear Outside");
+	run("Make Binary");
+	while (getBoolean(" Dilate? ")){
+		run("Dilate");
+	}
+	run("Analyze Particles...", "size=25.00-Infinity show=Masks exclude clear summarize");
+	
+}
