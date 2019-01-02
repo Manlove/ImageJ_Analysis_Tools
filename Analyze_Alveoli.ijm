@@ -4,15 +4,22 @@
 //
 // ImageJ macro built to help analyze airway alveoli count and average size
 
+macro "Analyze_Alveoli" {
+	run("8-bit");
+	run("Threshold...");
 
-makeLine(996, 840, 1600, 840);
-run("Set Scale...", "distance=604 known=11.4 pixel=1 unit=uM");
-run("8-bit");
-setAutoThreshold("Default");
-//run("Threshold...");
-setThreshold(0, 254);
-setOption("BlackBackground", false);
-run("Convert to Mask");
-setThreshold(0, 0);
-run("Convert to Mask");
-run("Analyze Particles...", "size=2500-Infinity pixel circularity=0.05-1.00 show=Masks exclude summarize");
+  setThreshold(0,254); //Sets a reasonable initial number for the threshold
+	waitForUser("Threshold to Select for Alveoli Walls, then press 'Ok'");
+  run("Convert to Mask"); //This line is here to catch mistakes where the user forgets to complete the thresholding
+	selectWindow("Threshold");
+	run("Close");
+	run("Invert");
+  while (getBoolean("Erode?")) {;
+		run("Erode");
+	}
+	while (getBoolean("Dilate?")) {
+		run("Dilate");
+	}
+	waitForUser("Remove any noise, then press 'Ok'");
+	run("Analyze Particles...", "size=250-30000 pixel circularity=0.05-1.00 show=Masks exclude summarize");
+}
