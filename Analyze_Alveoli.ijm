@@ -13,13 +13,19 @@ macro "Analyze_Alveoli" {
   run("Convert to Mask"); //This line is here to catch mistakes where the user forgets to complete the thresholding
 	selectWindow("Threshold");
 	run("Close");
+
+	// Image is inverted to allow the empty alveoli space to be measured.
 	run("Invert");
+
+	// User is asked to erode or dilate to correct connected alveoli.
   while (getBoolean("Erode?")) {;
 		run("Erode");
 	}
 	while (getBoolean("Dilate?")) {
 		run("Dilate");
 	}
+
+	// User is prompted to remove any additional noise such as airways for vessels.
 	waitForUser("Remove any noise, then press 'Ok'");
 	run("Analyze Particles...", "size=250-30000 pixel circularity=0.05-1.00 show=Masks exclude summarize");
 }
