@@ -8,13 +8,14 @@
 
 macro "Dapi Count [f1]" {
 	run("8-bit");
+
+	// Thresholds to fit the dapi objects
 	run("Threshold...");
 	selectWindow("Threshold");
 	waitForUser("Adjust Threshold, then press 'Ok'");
 	run("Convert to Mask"); //This line is here to catch mistakes where the user forgets to complete the thresholding
 	selectWindow("Threshold");
 	run("Close");
-	run("Convert to Mask");
 	while (getBoolean(" Dilate? ")){
 		run("Dilate");
 	}
