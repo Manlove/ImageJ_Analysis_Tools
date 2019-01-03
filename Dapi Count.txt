@@ -1,7 +1,7 @@
 // Dapi Count
 // Logan Manlove
 // 6-26-2017
-// 
+//
 // ImageJ Macro built to streamline dapi count analysis
 
 
@@ -11,11 +11,15 @@ macro "Dapi Count [f1]" {
 	run("Threshold...");
 	selectWindow("Threshold");
 	waitForUser("Adjust Threshold, then press 'Ok'");
+	run("Convert to Mask"); //This line is here to catch mistakes where the user forgets to complete the thresholding
 	selectWindow("Threshold");
 	run("Close");
 	run("Convert to Mask");
 	while (getBoolean(" Dilate? ")){
 		run("Dilate");
+	}
+	while (getBoolean(" Erode? ")){
+		run("Erode");
 	}
 	run("Analyze Particles...", "size=50.00-Infinity show=Masks exclude clear summarize");
 }
