@@ -21,23 +21,29 @@ if (File.exists(loadDir + "imagej\\")){
 	checkForDone = 1;
 }
 
+// Creates imagej folder if one has not been created and stores the location to save images
 if (checkForDone == 0) {
 	saveDir = loadDir + "imagej\\";
 	File.makeDirectory(saveDir);
 }
-// retrieves a list of the files in the folder.
 
+// retrieves a list of the files in the folder.
 fileList = getFileList(loadDir);
 
-// Makes a folder at the save file path
-
+// Steps through the list of files. If the file is a directory the function is called again
+// with the file path as the argument
 for (i = 0; i < lengthOf(fileList); i++){
 	if (File.isDirectory(loadDir + fileList[i]) && fileList[i] != "imagej/"){
 		runMacro("hyal_save", loadDir + fileList[i]);
 	} else if (endsWith(fileList[i],".nd2") && checkForDone == 0) {
+
+// If the file is not a directory, the directory has not previously been done, and the file is a .nd2 file
+// The image is opened with the bio-formats importer
 		name = fileList[i];
 		file = loadDir + name;
 		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Colorized rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
+
+// The image is renamed to allow for downstream functions that would fail without a common name
 		saveName = getTitle;
 		rename("temp");
 		run("Split Channels");
