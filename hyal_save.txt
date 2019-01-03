@@ -45,6 +45,8 @@ for (i = 0; i < lengthOf(fileList); i++){
 
 // The image is renamed to allow for downstream functions that would fail without a common name
 		rename("temp");
+
+// Splits the image into different channels and saves each channel individually as a RGB Color Tiff
 		run("Split Channels");
 		selectWindow("C4-temp");
 		run("RGB Color");
@@ -54,11 +56,11 @@ for (i = 0; i < lengthOf(fileList); i++){
 		run("RGB Color");
 		saveAs("tiff", saveDir + name + " Green");
 
-
 		selectWindow("C2-temp");
 		run("RGB Color");
 		saveAs("tiff", saveDir + name + " Dapi");
 
+// Re-Merges the channels and saves the composite as a RGB Color Tiff
 		run("Merge Channels...", "c1=[" + name + " SMA.tif] c2=[" + name + " Green.tif] c3=[" + name + " Dapi.tif] create");
 		selectWindow("C1-temp");
 		run("Close");
