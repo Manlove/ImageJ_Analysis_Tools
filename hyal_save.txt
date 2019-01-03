@@ -1,4 +1,7 @@
 macro "hyal_save" {
+// This function is used to recursively resave a nested folder system full of .nd2 multichannel images
+// as individual and merged RGB Color images
+
 
 
 // Retrieves the arguments given to the function
