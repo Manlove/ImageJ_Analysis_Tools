@@ -44,7 +44,6 @@ for (i = 0; i < lengthOf(fileList); i++){
 		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Colorized rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
 
 // The image is renamed to allow for downstream functions that would fail without a common name
-		saveName = getTitle;
 		rename("temp");
 		run("Split Channels");
 		selectWindow("C4-temp");
