@@ -54,20 +54,15 @@ for (i = 0; i < lengthOf(fileList); i++) {
 // The next two blocks allows the user the option of redoing the image if the are unsatisfied with
 // the outcome. And if they are they are then asked if they would like select another cell in the
 // same image.
-		check = 1;
 		if (getBoolean("Redo Image?")){
 			check = 2;
 			i --;
 			j --;
-		}
-		if (check == 1){
-			if (getBoolean("Select another cell in Image?")){
-				i--;
-			}
+		} else if (getBoolean("Select another cell in Image?")) {
+			i--;
 		}
 		j++;
 		close();
-
 	}
 }
 }
