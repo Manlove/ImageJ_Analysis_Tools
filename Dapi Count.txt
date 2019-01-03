@@ -16,11 +16,15 @@ macro "Dapi Count [f1]" {
 	run("Convert to Mask"); //This line is here to catch mistakes where the user forgets to complete the thresholding
 	selectWindow("Threshold");
 	run("Close");
+
+	// Allows User to dilate and erode to separate dapi objects
 	while (getBoolean(" Dilate? ")){
 		run("Dilate");
 	}
 	while (getBoolean(" Erode? ")){
 		run("Erode");
 	}
+
+	// Measures objects (set to run on a calibrated image with image units in uM)
 	run("Analyze Particles...", "size=50.00-Infinity show=Masks exclude clear summarize");
 }
