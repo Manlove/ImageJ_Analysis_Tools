@@ -1,22 +1,29 @@
 macro "hyal_save" {
 
+
+// Retrieves the arguments given to the function
 args = getArgument();
+
+// If no arguments are given the user is asked to choose a directory (This should only happen when it is first run)
 if (args == ""){
 	args = getDirectory("Choose a Directory");
-
 }
+
+// Sets the directory to load the images from as the directory given as an argument
+// or as the directory chosen by the user.
 loadDir = args;
+
+// checkForDone is used to determine if a directory has already been visited by the function
+// Checks for the existance of an imagej folder within the given directory.
+// If one exists the directory is skipped
 checkForDone = 0;
 if (File.exists(loadDir + "imagej\\")){
 	checkForDone = 1;
 }
+
+
 saveDir = loadDir + "imagej\\";
 File.makeDirectory(saveDir);
-
-// Get user input for folder where tiffs are
-// stored and creates a path to store saved files.
-
-
 
 // retrieves a list of the files in the folder.
 
@@ -37,7 +44,7 @@ for (i = 0; i < lengthOf(fileList); i++){
 		selectWindow("C4-temp");
 		run("RGB Color");
 		saveAs("tiff", saveDir + name + " SMA");
-	
+
 		selectWindow("C3-temp");
 		run("RGB Color");
 		saveAs("tiff", saveDir + name + " Green");
@@ -56,6 +63,6 @@ for (i = 0; i < lengthOf(fileList); i++){
 		run("Close");
 	}
 
-	
+
 }
 }
