@@ -14,36 +14,46 @@ macro "MitoTracker Processing [f1]" {
 
 // Get user input for folder where tiffs are
 // stored and creates a path to store saved files.
-
 loadDir = getDirectory("Choose a Directory");
 saveDir = loadDir + "imagej\\";
 
 // retrieves a list of the files in the folder.
-
 fileList = getFileList(loadDir);
 
 // Makes a folder at the save file path
-
 File.makeDirectory(saveDir);
 
 j = 1;
 for (i = 0; i < lengthOf(fileList); i++) {
+// Opens each .tif file individually
 	if (endsWith(fileList[i],".tif")){
- 
 		file = loadDir + fileList[i];
 		open(file);
+
+// Allows user to circle a single cell with the freehand tool
 		setTool("freehand");
 		waitForUser("Outline Cell then press 'OK'.");
 		run("Clear Outside");
+
+// Allows the User to adjust the brightness and contrast of the image.
+// The goal is to create as much contrast as possible between the mitochondria
+// and the background.
 		run("Brightness/Contrast...");
 		selectWindow("B&C");
 		waitForUser("Adjust Brightness and Contrast, then press 'Ok'");
 		selectWindow("B&C");
 		run("Close");
+
+// Saves the image as an 8-bit tiff file in the imagej subdirectory with an incrementing filename.
+// Numerical names add simplicity in downstream analysis.
 		selectWindow(fileList[i]);
 		run("RGB Color");
 		run("8-bit");
 		saveAs("tiff", saveDir + j);
+
+// The next two blocks allows the user the option of redoing the image if the are unsatisfied with
+// the outcome. And if they are they are then asked if they would like select another cell in the
+// same image.
 		check = 1;
 		if (getBoolean("Redo Image?")){
 			check = 2;
@@ -57,7 +67,7 @@ for (i = 0; i < lengthOf(fileList); i++) {
 		}
 		j++;
 		close();
-		
+
 	}
 }
 }
