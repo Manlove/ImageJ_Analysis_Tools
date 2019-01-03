@@ -21,10 +21,10 @@ if (File.exists(loadDir + "imagej\\")){
 	checkForDone = 1;
 }
 
-
-saveDir = loadDir + "imagej\\";
-File.makeDirectory(saveDir);
-
+if (checkForDone == 0) {
+	saveDir = loadDir + "imagej\\";
+	File.makeDirectory(saveDir);
+}
 // retrieves a list of the files in the folder.
 
 fileList = getFileList(loadDir);
