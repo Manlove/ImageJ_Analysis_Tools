@@ -1,51 +1,73 @@
 macro "nd2_to_tif [f3]" {
 
+
+// Retrieves the arguments given to the function
 args = getArgument();
+
+// If no arguments are given the user is asked to choose a directory (This should only happen when it is first run)
 if (args == ""){
 	args = getDirectory("choose a Directory");
 }
+
+// Sets the directory to load the images from as the directory given as an argument
+// or as the directory chosen by the user.
 loadDir = args;
+
+// checkForDone is used to determine if a directory has already been visited by the function
+// Checks for the existance of an imagej folder within the given directory.
+// If one exists the directory is skipped
 checkForDone = 0;
 if (File.exists(loadDir + "imagej_SMA\\")){
 	checkForDone = 1;
 }
+
+// Creates three subdirectories to save each separate image
 saveDirSMA = loadDir + "imagej_SMA\\";
 saveDirFib = loadDir + "imagej_Fib\\";
 saveDirBright = loadDir + "imagej_Bright\\";
-
 File.makeDirectory(saveDirSMA);
 File.makeDirectory(saveDirFib);
 File.makeDirectory(saveDirBright);
 
+// retrieves a list of the files in the folder.
 fileList = getFileList(loadDir);
 
+// Steps through the list of files. If the file is a directory, not one created by the function, the function is called again
+// with the file path as the argument
 for (i = 0; i < lengthOf(fileList); i++){
 	if (File.isDirectory(loadDir + fileList[i]) && fileList[i] != "imagej_SMA/" && fileList[i] != "imagej_Fib/" && fileList[i] != "imagej_Bright/" && fileList[i] != "ignore/"){
 		runMacro("nd2_to_tif", loadDir + fileList[i]);
 	} else if (endsWith(fileList[i],".nd2") && checkForDone == 0) {
+
+// If the file is not a directory, the directory has not previously been done, and the file is a .nd2 file
+// The image is opened with the bio-formats importer
 		name = fileList[i];
 		file = loadDir + name;
 		run("Bio-Formats Importer", "open=[file] autoscale color_mode=Composite rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
-		
+
+// The image is renamed to allow for downstream functions that would fail without a common name
 		rename("temp");
 
 		run("Split Channels");
 
+// Saves three combinations of two channels
+		// Smooth muscle and Dapi
 		run("Merge Channels...", "c1=[C4-temp] c3=[C2-temp] create keep");
 		selectWindow("Composite");
 		run("RGB Color");
 		close("Composite");
 		saveAs("tiff", saveDirSMA + name);
 		close("Composite (RGB)");
-		
+
+		// Fibronectin and Dapi
 		run("Merge Channels...", "c2=[C3-temp] c3=[C2-temp] create keep");
 		selectWindow("Composite");
 		run("RGB Color");
 		close("Composite");
 		saveAs("tiff", saveDirFib + name);
 		close("Composite (RGB)");
-		
 
+		// Brightfield and Fibronectin
 		run("Merge Channels...", "c1=[C4-temp] c2=[C3-temp] c3=[C2-temp] create keep");
 		selectWindow("Composite");
 		run("RGB Color");
@@ -53,7 +75,8 @@ for (i = 0; i < lengthOf(fileList); i++){
 		saveAs("tiff", saveDirBright + name);
 		close("Composite (RGB)");
 
-
+// Saves each channel individually into its corresponding folder.
+// Dapi is saved into both the SMA and Fib folders
 		selectWindow("C1-temp");
 		run("RGB Color");
 		saveAs("tiff", saveDirBright + name + "_brightfield");
@@ -74,7 +97,8 @@ for (i = 0; i < lengthOf(fileList); i++){
 		run("RGB Color");
 		saveAs("tiff", saveDirFib + name + "_Fibro");
 		close("C3-temp");
-		
+
+// Closes all image windows before moving onto next file
 		run("Close");
 		run("Close");
 		run("Close");
